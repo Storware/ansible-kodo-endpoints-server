@@ -60,17 +60,6 @@
   shell: "{{ kodo_init_script_path }} --dbrootpassword {{ mariadb_root_password }}"
   when: "kodo_db_name not in db_list.databases"
 
-- name: Update dsm.sys file
-  lineinfile:
-    dest: "{{ isp_dsmsys_path }}"
-    regexp: '^{{ item.key }}\s+'
-    line: "{{ item.key }}\t{{ item.value }}"
-    create: true
-    state: present
-  loop:
-    - { key: "passworddir", value: "{{ isp_dsmsys_passworddir }}" }
-    - { key: "errorlogname", value: "{{ isp_dsmsys_errorlogname }}" }
-
 - name: Start and enable Kodo Endpoints Server service
   service:
     name: kodo-for-endpoints
