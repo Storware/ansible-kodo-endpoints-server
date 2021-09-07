@@ -1,7 +1,7 @@
 ---
 - name: Setting up Kodo Endpoints Server FQDN
   set_fact:
-    server_fqdn: "{{ ansible_nodename }}"
+    server_fqdn: "{{ inventory_hostname }}"
   when: server_fqdn is undefined
 
 - name: Using the following Kodo Endpoints Server FQDN
@@ -89,3 +89,70 @@
     permanent: yes
     immediate: yes
     state: enabled
+
+- name: Login to Kodo
+  uri:
+    url: "https://{{ server_fqdn }}:8181/api/admin/auth/login"
+    method: POST
+    body:
+      username: "{{ kodo_kodoadmin_user }}"
+      password: "{{ kodo_kodoadmin_pass }}"
+    validate_certs: false
+    return_content: true
+    body_format: json
+  register: resp_login
+  retries: 100
+  delay: 5
+  until: resp_login is not failed
+
+- set_fact:
+    token: "{{ resp_login.json.token }}"
+
+- name: Set deployment server
+  uri:
+    url: "https://{{ server_fqdn }}:8181/api/admin/instance-settings/general"
+    method: PUT
+    body:
+      allowedIpsForKodoAdmin:
+      deploymentServerName: "{{ server_fqdn }}"
+    headers:
+      Authorization: "Bearer {{ token }}"
+    body_format: json
+    status_code: 204
+    validate_certs: false
+
+- set_fact:
+    isp_fqdn: "localhost"
+  when: isp_fqdn == server_fqdn
+
+- name: Configure IBM Spectrum Protect access
+  uri:
+    url: "https://{{ server_fqdn }}:8181/api/admin/instance-settings/tsm"
+    method: PUT
+    body:
+      address: "{{ isp_fqdn }}"
+      node: "{{ isp_service_node_name }}"
+      port: "{{ isp_dsmsys_tcpport|int }}"
+      useSsl: false
+      collectDeduplicationStats: false
+      nextExpireInventoryDate: "{{ ansible_date_time.epoch|int * 1000 }}"
+      expireInventoryInterval: 21600000
+      expireInventoryResource: 4
+      fetchingDeduplicationStatsInterval: 0
+    headers:
+      Authorization: "Bearer {{ token }}"
+    body_format: json
+    status_code: 204
+    validate_certs: false
+
+- name: Configure IBM Spectrum Protect password
+  uri:
+    url: "https://{{ server_fqdn }}:8181/api/admin/instance-settings/tsm/password"
+    method: PUT
+    body:
+      password: "{{ isp_service_node_password }}"
+    headers:
+      Authorization: "Bearer {{ token }}"
+    body_format: json
+    status_code: 204
+    validate_certs: false
