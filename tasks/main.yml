@@ -108,12 +108,12 @@
 - set_fact:
     token: "{{ resp_login.json.token }}"
 
-- name: Set deployment server
+- name: Update general settings
   uri:
     url: "https://{{ server_fqdn }}:8181/api/admin/instance-settings/general"
     method: PUT
     body:
-      allowedIpsForKodoAdmin:
+      allowedIpsForKodoAdmin: []
       deploymentServerName: "{{ server_fqdn }}"
     headers:
       Authorization: "Bearer {{ token }}"
@@ -125,7 +125,7 @@
     isp_fqdn: "localhost"
   when: isp_fqdn == server_fqdn
 
-- name: Configure IBM Spectrum Protect access
+- name: Update IBM Spectrum Protect settings
   uri:
     url: "https://{{ server_fqdn }}:8181/api/admin/instance-settings/tsm"
     method: PUT
@@ -145,7 +145,7 @@
     status_code: 204
     validate_certs: false
 
-- name: Configure IBM Spectrum Protect password
+- name: Set IBM Spectrum Protect password
   uri:
     url: "https://{{ server_fqdn }}:8181/api/admin/instance-settings/tsm/password"
     method: PUT
