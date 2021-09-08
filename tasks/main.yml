@@ -1,7 +1,7 @@
 ---
 - name: Setting up Kodo Endpoints Server FQDN
   set_fact:
-    server_fqdn: "{{ inventory_hostname }}"
+    server_fqdn: "{{ ansible_nodename }}"
   when: server_fqdn is undefined
 
 - name: Using the following Kodo Endpoints Server FQDN
