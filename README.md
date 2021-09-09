@@ -1,4 +1,4 @@
-Role Name
+Kodo for Endpoints Server
 =========
 
 Kodo Endpoints is a backup solution for Windows and MacOS desktops and laptops supporting Continous Data Protection
