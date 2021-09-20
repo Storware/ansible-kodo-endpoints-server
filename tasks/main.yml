@@ -67,6 +67,14 @@
     state: started
     enabled: yes
 
+- name: Create staging directory
+  file:
+    state: directory
+    path: "{{ kodo_staging_path }}"
+    owner: "{{ kodo_user }}"
+    group: "{{ kodo_user }}"
+    mode: "0750"
+
 - name: Start and enable firewalld service
   service:
     name: firewalld
@@ -151,6 +159,19 @@
     method: PUT
     body:
       password: "{{ isp_service_node_password }}"
+    headers:
+      Authorization: "Bearer {{ token }}"
+    body_format: json
+    status_code: 204
+    validate_certs: false
+
+- name: Set Kodo staging space path and free space warning threshold
+  uri:
+    url: "https://{{ server_fqdn }}:8181/api/admin/instance-settings/fsstorage"
+    method: PUT
+    body:
+      stagingPath: "{{ kodo_staging_path }}"
+      stagingFreeSpaceWarningThreshold: "{{ kodo_staging_free_space_warn_threshold }}"
     headers:
       Authorization: "Bearer {{ token }}"
     body_format: json
