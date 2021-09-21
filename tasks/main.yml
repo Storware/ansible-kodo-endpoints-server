@@ -140,7 +140,8 @@
     body:
       address: "{{ isp_fqdn }}"
       node: "{{ isp_service_node_name }}"
-      port: "{{ isp_dsmsys_tcpport|int }}"
+      port: "{{ isp_port|int }}"
+      adminPort: "{{ isp_admin_port|int }}"
       useSsl: false
       collectDeduplicationStats: false
       nextExpireInventoryDate: "{{ ansible_date_time.epoch|int * 1000 }}"
@@ -152,6 +153,15 @@
     body_format: json
     status_code: 204
     validate_certs: false
+  when: isp_fqdn is defined and isp_service_node_name is defined and isp_port is defined and isp_admin_port is defined
+
+- name: Check ISP server's SSL certificate exists
+  local_action: stat path=cert256.arm
+  register: stat_isp_cert
+
+- name: Configure SSL connection to the ISP server
+  include_tasks: setup_ssl_connection_with_isp.yml
+  when: stat_isp_cert.stat.exists
 
 - name: Set IBM Spectrum Protect password
   uri:
@@ -164,6 +174,7 @@
     body_format: json
     status_code: 204
     validate_certs: false
+  when: isp_service_node_password is defined
 
 - name: Set Kodo staging space path and free space warning threshold
   uri:

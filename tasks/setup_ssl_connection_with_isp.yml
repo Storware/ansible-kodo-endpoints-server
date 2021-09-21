@@ -1,0 +1,32 @@
+---
+- name: Upload SSL certificate of the ISP server (if it has been installed by this playbook)
+  uri:
+    url: "https://{{ server_fqdn }}:8181/api/admin/instance-settings/tsm/sslcert"
+    method: PUT
+    src: cert256.arm
+    headers:
+      Authorization: "Bearer {{ token }}"
+      Content-Type: application/octet-stream
+    status_code: 204
+    validate_certs: false
+
+- name: Enable SSL connection to the ISP (if it has been installed by this playbook)
+  uri:
+    url: "https://{{ server_fqdn }}:8181/api/admin/instance-settings/tsm"
+    method: PUT
+    body:
+      address: "{{ isp_fqdn }}"
+      node: "{{ isp_service_node_name }}"
+      port: "{{ isp_port_ssl|int }}"
+      adminPort: "{{ isp_admin_port_ssl|int }}"
+      useSsl: true
+      collectDeduplicationStats: false
+      nextExpireInventoryDate: "{{ ansible_date_time.epoch|int * 1000 }}"
+      expireInventoryInterval: 21600000
+      expireInventoryResource: 4
+      fetchingDeduplicationStatsInterval: 0
+    headers:
+      Authorization: "Bearer {{ token }}"
+    body_format: json
+    status_code: 204
+    validate_certs: false
