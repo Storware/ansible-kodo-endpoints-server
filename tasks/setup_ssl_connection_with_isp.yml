@@ -20,7 +20,7 @@
       port: "{{ isp_port_ssl|int }}"
       adminPort: "{{ isp_admin_port_ssl|int }}"
       useSsl: true
-      collectDeduplicationStats: false
+      collectDeduplicationStats: true
       nextExpireInventoryDate: "{{ ansible_date_time.epoch|int * 1000 }}"
       expireInventoryInterval: 21600000
       expireInventoryResource: 4
