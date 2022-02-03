@@ -31,10 +31,10 @@
     baseurl: "{{ kodo_repo }}"
     gpgcheck: no
 
-- name: Install Kodo Endpoints Server and dependencies
+- name: Install Endpoints Server and dependencies
   yum:
     name:
-      - kodo-for-endpoints
+      - sbr-endpoints-server  
       - python3-PyMySQL
     state: present
 
@@ -56,13 +56,13 @@
       - databases
   register: db_list
 
-- name: Initialize Kodo Endpoints Server
+- name: Initialize Endpoints Server
   shell: "{{ kodo_init_script_path }} --dbrootpassword {{ mariadb_root_password }}"
   when: "kodo_db_name not in db_list.databases"
 
 - name: Start and enable Kodo Endpoints Server service
   service:
-    name: kodo-for-endpoints
+    name: sbr-endpoints-server
     daemon-reload: yes
     state: started
     enabled: yes
