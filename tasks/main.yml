@@ -8,6 +8,10 @@
   debug:
     msg: "Endpoints Server FQDN: {{ server_fqdn }}"
 
+- name: Install jmespath python package
+  pip:
+    name: jmespath
+
 - name: Add MariaDB repository
   yum_repository:
     name: MariaDB
