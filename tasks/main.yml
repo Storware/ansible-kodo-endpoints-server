@@ -182,7 +182,7 @@
 
 - name: Configure SSL connection to the ISP server
   include_tasks: setup_ssl_connection_with_isp.yml
-  when: stat_isp_cert.stat.exists
+  when: stat_isp_cert.stat.exists and isp_fqdn is defined and isp_service_node_name is defined and isp_port is defined and isp_admin_port is defined
 
 - name: Set IBM Spectrum Protect password
   uri:
